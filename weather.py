@@ -261,7 +261,7 @@ def write_weather_database(parameters_file_name):
         for file_name in os.listdir(raw_data_folder):
             if file_name.split('.')[-1] == 'grib':
                 file_header = file_name.split('.')[0]
-                if file_header[0:len(quantity)] == quantity:
+                if file_header[: len(quantity)] == quantity:
 
                     source_file = f'{raw_data_folder}/{file_name}'
                     quantity_dataframe = cook.from_grib_to_dataframe(
@@ -436,10 +436,7 @@ def get_EV_tool_data(parameters_file_name):
     EV_tool_html_content = EV_tool_session.get(EV_tool_url).content
     EV_tool_soup = bs(EV_tool_html_content, 'html.parser')
 
-    EV_tool_scripts = []
-    for script in EV_tool_soup.find_all('script'):
-        EV_tool_scripts.append(script)
-
+    EV_tool_scripts = list(EV_tool_soup.find_all('script'))
     efficiency_curve_script_index = EV_tool_parameters[
         'efficiency_curve_script_index'
     ]
@@ -525,9 +522,7 @@ def temperature_efficiency_factor(temperature, parameters_file_name):
     )
     fitting_function = np.poly1d(fitting_function_coefficients)
 
-    efficiency_factor = fitting_function(temperature)
-
-    return (efficiency_factor)
+    return fitting_function(temperature)
 
 
 def plot_temperature_efficiency(parameters_file_name):
@@ -764,10 +759,7 @@ def solar_panels_efficiency_factor(temperature):
     much of the solar radiation is converted into electricity).
     THIS IS A PLACEHOLDER FUNCTION
     '''
-    # THIS IS A PLACEHOLDER VALUE
-    efficiency_factor = np.exp(-((temperature-25)**2)/(100))/3
-
-    return efficiency_factor
+    return np.exp(-((temperature-25)**2)/(100))/3
 
 
 def setup_weather(parameters_file_name):
@@ -843,11 +835,7 @@ def get_location_weather_quantity(
         scenario_query, weather_database_connection
     )
 
-    # The column does not contain double quotes and we need
-    # the value (hence [0])
-    value_of_weather_quantity = weather_values[weather_quantity.strip('"')][0]
-
-    return value_of_weather_quantity
+    return weather_values[weather_quantity.strip('"')][0]
 
 
 if __name__ == '__main__':

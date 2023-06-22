@@ -155,9 +155,7 @@ def dataframe_from_Excel_table_name(table_name, Excel_file):
             table_row[header_index] for table_row in table_values]
         table_dictionary[header] = values_for_header
 
-    table_dataframe = pd.DataFrame.from_dict(table_dictionary)
-
-    return table_dataframe
+    return pd.DataFrame.from_dict(table_dictionary)
 
 
 def dataframe_to_Excel(dataframe_to_append, Excel_workbook, my_sheet):
@@ -218,12 +216,10 @@ def rgb_color_list(color_names, parameters_file_name):
     '''
     Gets a list of RGB codes for a list of color names.
     '''
-    rgb_codes = [
+    return [
         get_rgb_from_name(color_name, parameters_file_name)
         for color_name in color_names
     ]
-
-    return rgb_codes
 
 
 def register_color_bars(parameters_file_name):
@@ -264,8 +260,7 @@ def register_color_bars(parameters_file_name):
             # It is a list so that we can append,
             # but we will need to convert it to a tuple
             base_color_entries = []
-            for color_bar_index, (color_step, color_bar_color) in enumerate(
-                    zip(color_steps, color_bar_colors)):
+            for color_step, color_bar_color in zip(color_steps, color_bar_colors):
                 # We get the ton by getting the RGB values of the
                 # color bar color and taking the corresponding base index
                 color_bar_color_tone = get_rgb_from_name(
@@ -583,11 +578,7 @@ def put_dataframe_in_sql_in_chunks(
     chunk_end = 0
 
     with sqlite3.connect(sql_file) as sql_connection:
-        if drop_existing_table:
-            table_action = 'replace'
-        else:
-            table_action = 'append'
-
+        table_action = 'replace' if drop_existing_table else 'append'
         while chunk_end < data_length:
 
             chunk_end = min(chunk_start+chunk_size, data_length)
@@ -620,11 +611,7 @@ def dataframes_from_query_list(query_list, sql_connection):
     '''
     This returns a list of dataframes, each obtained from a query in the list
     '''
-    dataframe_list = [
-        pd.read_sql(sql_query, sql_connection) for sql_query in query_list
-    ]
-
-    return dataframe_list
+    return [pd.read_sql(sql_query, sql_connection) for sql_query in query_list]
 
 
 def from_grib_to_dataframe(grib_file):
@@ -639,9 +626,7 @@ def from_grib_to_dataframe(grib_file):
     grib_engine = 'cfgrib'
 
     source_data = xr.load_dataset(grib_file, engine=grib_engine)
-    source_dataframe = source_data.to_dataframe()
-
-    return source_dataframe
+    return source_data.to_dataframe()
 
 
 def sql_query_generator(
@@ -704,7 +689,7 @@ def sql_query_generator(
     ):
 
         if first_filter:
-            query_filter = f'where '
+            query_filter = 'where '
             first_filter = False
         else:
             query_filter = f'{query_filter} and'
@@ -742,12 +727,7 @@ def sql_query_generator(
                 f'{filter_type} {filter_value}'
             )
 
-    output_query = (
-        f'select {quantities_to_display} from {source_table} '
-        f'{query_filter};'
-    )
-
-    return output_query
+    return f'select {quantities_to_display} from {source_table} {query_filter};'
 
 
 def database_tables_columns(database):
